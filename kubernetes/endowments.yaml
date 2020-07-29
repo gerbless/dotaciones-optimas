@@ -1,0 +1,74 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: flex-sisa-endwment-endowments
+spec:
+  schedule: "*/1 * * * *"
+  concurrencyPolicy: "Allow"
+  failedJobsHistoryLimit: 10
+  startingDeadlineSeconds: 600 # 10 min
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      activeDeadlineSeconds: 3300 # 55min
+      template:
+        spec:
+          containers:
+          - name: flex-sisa-endwment-endowments
+            image: advancedanalyticsacr.azurecr.io/flex-sisa-endwment
+            command: ["python"]
+            args: ["app.py", "endowments"]
+            env:
+            - name: PQ0_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: config-dotaciones
+                  key: pq0.host
+            - name: PQ0_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: config-dotaciones
+                  key: pq0.port
+            - name: PQ0_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: config-dotaciones
+                  key: pq0.user
+            - name: PQ0_PASS
+              valueFrom:
+                configMapKeyRef:
+                  name: config-dotaciones
+                  key: pq0.pass
+            - name: MODE_DEBBUGER
+              valueFrom:
+                configMapKeyRef:
+                  name: config-dotaciones
+                  key: mode.debbuger
+            - name: COUNT_SCHEDULING
+              valueFrom:
+                configMapKeyRef:
+                  name: config-dotaciones
+                  key: count.scheduling
+            - name: MAX_ATTEMPTS
+              valueFrom:
+                configMapKeyRef:
+                  name: config-dotaciones
+                  key: max.attempts
+            - name: MAX_ATTEMPTS_REQUEST_INPUT
+              valueFrom:
+                configMapKeyRef:
+                  name: config-dotaciones
+                  key: max.attempts.request.input
+            - name: URL_SEARCH_MODEL
+              valueFrom:
+                configMapKeyRef:
+                  name: config-dotaciones
+                  key: url.search.model
+            - name: SISA_PG_DATABASEURL
+              valueFrom:
+                configMapKeyRef:
+                  name: config-dotaciones
+                  key: sisa.pg.databaseurl
+          imagePullSecrets:
+            - name: auth
+          restartPolicy: Never
